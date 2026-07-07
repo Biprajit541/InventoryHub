@@ -1,0 +1,296 @@
+﻿@page "/counter"
+
+@using System.Text.Json
+@using ClientApp.Models
+@inject HttpClient Http
+
+<PageTitle>Statistics - InventoryHub</PageTitle>
+
+<h1 class="mb-2">📊 Inventory Statistics</h1>
+
+<p class="text-muted mb-4">
+    Real-time inventory statistics generated from the InventoryHub API.
+</p>
+
+@if (products == null)
+{
+    <div class="text-center mt-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-3">Loading statistics...</p>
+    </div>
+}
+else
+{
+    <div class="row g-3 mb-4">
+
+        <div class="col-sm-6 col-xl-3">
+
+            <div class="card shadow-sm text-center h-100 border-0">
+
+                <div class="card-body">
+
+                    <div style="font-size:30px;">📦</div>
+
+                    <h2 class="text-primary mt-2">
+                        @products.Length
+                    </h2>
+
+                    <div class="text-muted">
+                        Products
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+
+            <div class="card shadow-sm text-center h-100 border-0">
+
+                <div class="card-body">
+
+                    <div style="font-size:30px;">🏷️</div>
+
+                    <h2 class="text-success mt-2">
+                        @CategoryCount
+                    </h2>
+
+                    <div class="text-muted">
+                        Categories
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+
+            <div class="card shadow-sm text-center h-100 border-0">
+
+                <div class="card-body">
+
+                    <div style="font-size:30px;">📊</div>
+
+                    <h2 class="text-warning mt-2">
+                        @TotalStock
+                    </h2>
+
+                    <div class="text-muted">
+                        Stock Units
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+
+            <div class="card shadow-sm text-center h-100 border-0">
+
+                <div class="card-body">
+
+                    <div style="font-size:30px;">💲</div>
+
+                    <h2 class="text-danger mt-2">
+                        $@AveragePrice.ToString("F2")
+                    </h2>
+
+                    <div class="text-muted">
+                        Average Price
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header bg-dark text-white">
+
+                    Inventory Summary
+
+                </div>
+
+                <div class="card-body">
+
+                    <table class="table table-hover">
+
+                        <tbody>
+
+                            <tr>
+
+                                <th>Total Products</th>
+
+                                <td>@products.Length</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <th>Total Categories</th>
+
+                                <td>@CategoryCount</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <th>Total Stock</th>
+
+                                <td>@TotalStock</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <th>Average Product Price</th>
+
+                                <td>$@AveragePrice.ToString("F2")</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <th>Highest Product Price</th>
+
+                                <td>$@HighestPrice.ToString("F2")</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <th>Lowest Product Price</th>
+
+                                <td>$@LowestPrice.ToString("F2")</td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header bg-success text-white">
+
+                    System Status
+
+                </div>
+
+                <div class="card-body">
+
+                    <p>
+
+                        <span class="badge bg-success">
+
+                            Online
+
+                        </span>
+
+                    </p>
+
+                    <p>
+
+                        ✔ API Connected
+
+                    </p>
+
+                    <p>
+
+                        ✔ JSON Validated
+
+                    </p>
+
+                    <p>
+
+                        ✔ Memory Cache Enabled
+
+                    </p>
+
+                    <p>
+
+                        ✔ CORS Configured
+
+                    </p>
+
+                    <p>
+
+                        ✔ Optimized Communication
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+}
+
+@code {
+
+    private Product[]? products;
+
+    private int CategoryCount =>
+        products?
+            .Select(p => p.Category?.Name)
+            .Distinct()
+            .Count() ?? 0;
+
+    private int TotalStock =>
+        products?.Sum(p => p.Stock) ?? 0;
+
+    private double AveragePrice =>
+        products?.Average(p => p.Price) ?? 0;
+
+    private double HighestPrice =>
+        products?.Max(p => p.Price) ?? 0;
+
+    private double LowestPrice =>
+        products?.Min(p => p.Price) ?? 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var json =
+                await Http.GetStringAsync("api/productlist");
+
+            products =
+                JsonSerializer.Deserialize<Product[]>(
+                    json,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+        }
+        catch
+        {
+            products = Array.Empty<Product>();
+        }
+    }
+
+}

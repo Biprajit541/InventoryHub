@@ -1,0 +1,117 @@
+﻿<div class="top-row ps-3 navbar navbar-dark bg-dark shadow-sm">
+
+    <div class="container-fluid">
+
+        <a class="navbar-brand fw-bold fs-5" href="">
+
+            📦 InventoryHub
+
+        </a>
+
+        <button class="navbar-toggler"
+                title="Navigation menu"
+                @onclick="ToggleNavMenu">
+
+            <span class="navbar-toggler-icon"></span>
+
+        </button>
+
+    </div>
+
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable"
+     @onclick="ToggleNavMenu">
+
+    <nav class="nav flex-column pt-2">
+
+        <div class="nav-item px-2">
+
+            <NavLink class="nav-link"
+                     href=""
+                     Match="NavLinkMatch.All">
+
+                <span class="bi bi-speedometer2 me-2"></span>
+
+                Dashboard
+
+            </NavLink>
+
+        </div>
+
+        <div class="nav-item px-2">
+
+            <NavLink class="nav-link"
+                     href="fetchproducts">
+
+                <span class="bi bi-box-seam-fill me-2"></span>
+
+                Products
+
+            </NavLink>
+
+        </div>
+
+        <div class="nav-item px-2">
+
+            <NavLink class="nav-link"
+                     href="counter">
+
+                <span class="bi bi-bar-chart-fill me-2"></span>
+
+                Statistics
+
+            </NavLink>
+
+        </div>
+
+        <div class="nav-item px-2">
+
+            <NavLink class="nav-link"
+                     href="about">
+
+                <span class="bi bi-info-circle-fill me-2"></span>
+
+                About
+
+            </NavLink>
+
+        </div>
+
+        <hr />
+
+        <div class="px-3 mt-2">
+
+            <small class="text-muted">
+
+                InventoryHub v1.0
+
+            </small>
+
+            <br />
+
+            <small class="text-muted">
+
+                Blazor WebAssembly
+
+            </small>
+
+        </div>
+
+    </nav>
+
+</div>
+
+@code {
+
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass =>
+        collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+}

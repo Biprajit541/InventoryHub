@@ -1,0 +1,295 @@
+@page "/fetchproducts"
+
+@using ClientApp.Models
+@using System.Text.Json
+@inject HttpClient Http
+
+<PageTitle>Products - InventoryHub</PageTitle>
+
+<h1 class="mb-2">📦 Product Inventory</h1>
+
+<p class="text-muted mb-4">
+    Browse products retrieved from the InventoryHub Minimal API.
+</p>
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger">
+        <strong>Error:</strong> @errorMessage
+    </div>
+}
+else if (products == null)
+{
+    <div class="text-center mt-5">
+
+        <div class="spinner-border text-primary"
+             role="status"></div>
+
+        <p class="mt-3">Loading products...</p>
+
+    </div>
+}
+else
+{
+    <div class="row mb-4">
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-0 bg-primary text-white">
+
+                <div class="card-body text-center">
+
+                    <h2>@products.Length</h2>
+
+                    <small>Total Products</small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-0 bg-success text-white">
+
+                <div class="card-body text-center">
+
+                    <h2>@TotalStock</h2>
+
+                    <small>Total Stock</small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-0 bg-dark text-white">
+
+                <div class="card-body text-center">
+
+                    <h2>$@AveragePrice.ToString("F2")</h2>
+
+                    <small>Average Price</small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        @foreach (var product in products)
+        {
+            <div class="col-lg-6 mb-4">
+
+                <div class="card shadow-sm h-100">
+
+                    <div class="card-header d-flex justify-content-between align-items-center">
+
+                        <strong>@product.Name</strong>
+
+                        <span class="badge bg-primary">
+
+                            ID @product.Id
+
+                        </span>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="mb-3">
+
+                            <strong>Category</strong>
+
+                            <br />
+
+                            <span class="badge bg-info text-dark">
+
+                                @product.Category?.Name
+
+                            </span>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <strong>Price</strong>
+
+                            <h4 class="text-success">
+
+                                $@product.Price.ToString("F2")
+
+                            </h4>
+
+                        </div>
+
+                        <div>
+
+                            <strong>Stock Status</strong>
+
+                            <br />
+
+                            @if (product.Stock >= 50)
+                            {
+                                <span class="badge bg-success">
+
+                                    In Stock (@product.Stock)
+
+                                </span>
+                            }
+                            else if (product.Stock >= 20)
+                            {
+                                <span class="badge bg-warning text-dark">
+
+                                    Limited (@product.Stock)
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">
+
+                                    Low Stock (@product.Stock)
+
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+    <div class="card shadow-sm mt-2">
+
+        <div class="card-header bg-secondary text-white">
+
+            Inventory Summary
+
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-hover">
+
+                <tbody>
+
+                    <tr>
+
+                        <th>Total Products</th>
+
+                        <td>@products.Length</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <th>Categories</th>
+
+                        <td>@CategoryCount</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <th>Total Stock</th>
+
+                        <td>@TotalStock</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <th>Average Price</th>
+
+                        <td>$@AveragePrice.ToString("F2")</td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}
+
+@code {
+
+    private Product[]? products;
+
+    private string? errorMessage;
+
+    private int CategoryCount =>
+        products?
+            .Select(p => p.Category?.Name)
+            .Distinct()
+            .Count() ?? 0;
+
+    private int TotalStock =>
+        products?.Sum(p => p.Stock) ?? 0;
+
+    private double AveragePrice =>
+        products?.Average(p => p.Price) ?? 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            using var cts =
+                new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
+            var response =
+                await Http.GetAsync(
+                    "api/productlist",
+                    cts.Token);
+
+            response.EnsureSuccessStatusCode();
+
+            var json =
+                await response.Content.ReadAsStringAsync();
+
+            products =
+                JsonSerializer.Deserialize<Product[]>(
+                    json,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+            if (products == null)
+                errorMessage = "No products found.";
+        }
+        catch (JsonException ex)
+        {
+            errorMessage = $"JSON Error: {ex.Message}";
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"HTTP Error: {ex.Message}";
+        }
+        catch (TaskCanceledException)
+        {
+            errorMessage = "Request timed out.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+}
