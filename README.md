@@ -1,7 +1,7 @@
-![Dashboard](image.png)
-![Products Page](image-1.png)
-![Statistics Page](image-2.png)
-![About Page](image-3.png)
+<img width="1917" height="927" alt="Screenshot 2026-07-07 213859" src="https://github.com/user-attachments/assets/25b3c423-dc06-4634-a669-15dde9d57157" />
+<img width="1900" height="930" alt="Screenshot 2026-07-07 213948" src="https://github.com/user-attachments/assets/6a386adb-9380-415b-957d-8fc05870b147" />
+<img width="1917" height="930" alt="Screenshot 2026-07-07 214022" src="https://github.com/user-attachments/assets/9a3ca76e-f04f-4097-af01-5d903e8d7603" />
+<img width="1900" height="932" alt="Screenshot 2026-07-07 214100" src="https://github.com/user-attachments/assets/88a8f3ad-a361-41b9-bd93-e1b1f12483e9" />
 
 # 📦 InventoryHub
 
